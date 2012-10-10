@@ -20,6 +20,7 @@ var source = process.argv[2],
     separator = '\t',
     fieldNames,
     lineCount = 0,
+    recordCount = 0,
     maxIdLength = 8;
 
 print('Converting ' + source + '...');
@@ -40,6 +41,9 @@ function processStream(inputStream) {
       processor(line);
     else
       inputStream.destroy();
+  })
+  .on('end', function () {
+    print('Converted ' + recordCount + ' records to JSON files in ' + destination);
   });
 }
 
@@ -90,6 +94,7 @@ function processRecord(line) {
   var record = Object.create(null);
   for (var i = 0; i < Math.min(fields.length, fieldNames.length); i++)
     record[fieldNames[i]] = fields[i];
+  recordCount++;
 
   // Create file in directory, and pause input while doing so
   input.pause();
