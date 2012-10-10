@@ -1,1 +1,1 @@
-TSV to JSON converts a tab-separated list of numbered records with header row to a tree of JSON files.
+TSV to JSON converts a list of numbered, tab-separated records with header row to a tree of JSON files.

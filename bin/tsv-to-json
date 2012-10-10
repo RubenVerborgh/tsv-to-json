@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 if (process.argv.length != 4) {
   die('TSV to JSON\n' +
-      'converts a tab-separated list of numbered records with header row ' +
+      'converts a list of numbered, tab-separated records with header row ' +
       'to a tree of JSON files.\n\n' +
       'usage: tsv-to-json <file_or_uri_to_convert> <output_folder>');
 }
