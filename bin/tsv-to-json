@@ -25,29 +25,21 @@ var source = process.argv[2],
 print('Converting ' + source + '...');
 
 // Open HTTP stream if the source is a URL
-if (source.match(/^https?:\/\//)) {
-  var request = http.request(source, function (res) {
-    // Process data by line as long as there is a processor
-    input = byline(res).on('data', function (line) {
-      lineCount++;
-      if (processor)
-        processor(line);
-      else
-        request.abort();
-    });
-  });
-  request.end();
-}
+if (source.match(/^https?:\/\//))
+  http.request(source, processStream).end();
 // Open a file stream otherwise
-else {
-  var fileStream = fs.createReadStream(source);
+else
+  processStream(fs.createReadStream(source));
+
+/* Process the specified input stream */
+function processStream(inputStream) {
   // Process data by line as long as there is a processor
-  input = byline(fileStream).on('data', function (line) {
+  input = byline(inputStream).on('data', function (line) {
     lineCount++;
     if (processor)
       processor(line);
     else
-      fileStream.destroy();
+      inputStream.destroy();
   });
 }
 
