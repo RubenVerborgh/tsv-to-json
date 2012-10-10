@@ -15,6 +15,7 @@ var fs = require('fs'),
 
 var source = process.argv[2],
     destination = process.argv[3],
+    input,
     processor = processHeader,
     separator = '\t',
     fieldNames,
@@ -27,7 +28,7 @@ print('Converting ' + source + '...');
 if (source.match(/^https?:\/\//)) {
   var request = http.request(source, function (res) {
     // Process data by line as long as there is a processor
-    byline(res).on('data', function (line) {
+    input = byline(res).on('data', function (line) {
       lineCount++;
       if (processor)
         processor(line);
@@ -39,14 +40,14 @@ if (source.match(/^https?:\/\//)) {
 }
 // Open a file stream otherwise
 else {
-  var input = fs.createReadStream(source);
+  var fileStream = fs.createReadStream(source);
   // Process data by line as long as there is a processor
-  byline(input).on('data', function (line) {
+  input = byline(fileStream).on('data', function (line) {
     lineCount++;
     if (processor)
       processor(line);
     else
-      input.destroy();
+      fileStream.destroy();
   });
 }
 
@@ -98,12 +99,15 @@ function processRecord(line) {
   for (var i = 0; i < Math.min(fields.length, fieldNames.length); i++)
     record[fieldNames[i]] = fields[i];
 
-  // Create file in directory
+  // Create file in directory, and pause input while doing so
+  input.pause();
   var dirName = path.dirname(fileName);
   mkdirp(dirName, function (err) {
     if (err) die(err);
     fs.writeFile(fileName, JSON.stringify(record), function (err) {
       if (err) die(err);
+      // Resume input
+      input.resume();
     });
   });
 }
