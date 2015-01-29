@@ -1,9 +1,14 @@
 {
   "name": "tsv-to-json",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "TSV to JSON convertor",
   "author": "Ruben Verborgh <ruben.verborgh@gmail.com>",
-  "keywords": ["tsv", "json", "tab-separated", "conversion"],
+  "keywords": [
+    "tsv",
+    "json",
+    "tab-separated",
+    "conversion"
+  ],
   "bin": "./bin/tsv-to-json",
   "engines": {
     "node": ">=0.8.0"
