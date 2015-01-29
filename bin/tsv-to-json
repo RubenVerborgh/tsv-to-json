@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-if (process.argv.length != 4) {
+if (process.argv.length < 3 || process.argv.length > 4) {
   die('TSV to JSON\n' +
       'converts a list of numbered, tab-separated records with header row ' +
       'to a tree of JSON files.\n\n' +
-      'usage: tsv-to-json <file_or_uri_to_convert> <output_folder>');
+      'usage: tsv-to-json file_or_uri_to_convert [output_folder]');
 }
 
 var fs = require('fs'),
@@ -33,6 +33,10 @@ else
 
 /* Process the specified input stream */
 function processStream(inputStream) {
+  // Write possible header
+  if (!destination)
+    process.stdout.write('{\n"records": [\n');
+
   // Process data by line as long as there is a processor
   input = byline(inputStream).on('data', function (line) {
     lineCount++;
@@ -42,7 +46,13 @@ function processStream(inputStream) {
       inputStream.destroy();
   })
   .on('end', function () {
-    console.error('Converted ' + recordCount + ' records to JSON files in ' + destination);
+    if (!destination) {
+      process.stdout.write('\n]\n}\n');
+      console.error('Converted ' + recordCount + ' records');
+    }
+    else {
+      console.error('Converted ' + recordCount + ' records to JSON files in ' + destination);
+    }
   });
 }
 
@@ -71,6 +81,19 @@ function processRecord(line) {
   if (fieldNames.length < 2)
     return;
 
+  // Generate object from record
+  var record = Object.create(null);
+  for (var i = 0; i < Math.min(fields.length, fieldNames.length); i++)
+    record[fieldNames[i]] = fields[i];
+  recordCount++;
+
+  // Write to stdout if no destination folder specified
+  if (!destination) {
+    if (recordCount > 1) process.stdout.write(',\n');
+    process.stdout.write(JSON.stringify(record));
+    return;
+  }
+
   // Determine record ID
   var id = fields[0];
   if (!id.match(/^\d+$/)) {
@@ -88,12 +111,6 @@ function processRecord(line) {
     fileName += id[id.length + i - maxIdLength] || '0';
   }
   fileName += '.json';
-
-  // Generate object from record
-  var record = Object.create(null);
-  for (var i = 0; i < Math.min(fields.length, fieldNames.length); i++)
-    record[fieldNames[i]] = fields[i];
-  recordCount++;
 
   // Create file in directory
   try {
