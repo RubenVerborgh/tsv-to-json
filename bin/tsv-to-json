@@ -10,8 +10,7 @@ var fs = require('fs'),
     path = require('path'),
     mkdirp = require('mkdirp'),
     http = require('http'),
-    byline = require('byline'),
-    print = console.log;
+    byline = require('byline');
 
 var source = process.argv[2],
     destination = process.argv[3],
@@ -23,7 +22,7 @@ var source = process.argv[2],
     recordCount = 0,
     maxIdLength = 8;
 
-print('Converting ' + source + '...');
+console.error('Converting ' + source + '...');
 
 // Open HTTP stream if the source is a URL
 if (source.match(/^https?:\/\//))
@@ -43,7 +42,7 @@ function processStream(inputStream) {
       inputStream.destroy();
   })
   .on('end', function () {
-    print('Converted ' + recordCount + ' records to JSON files in ' + destination);
+    console.error('Converted ' + recordCount + ' records to JSON files in ' + destination);
   });
 }
 
@@ -56,9 +55,9 @@ function processHeader(line) {
   }
 
   // Report about found field names
-  print('Found ' + fieldNames.length + ' fields:');
-  print(' - ' + fieldNames.join('\n - '));
-  print('ID field is ' + fieldNames[0]);
+  console.error('Found ' + fieldNames.length + ' fields:');
+  console.error(' - ' + fieldNames.join('\n - '));
+  console.error('ID field is ' + fieldNames[0]);
 
   // Process the next line as a record
   processor = processRecord;
