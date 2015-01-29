@@ -96,17 +96,12 @@ function processRecord(line) {
     record[fieldNames[i]] = fields[i];
   recordCount++;
 
-  // Create file in directory, and pause input while doing so
-  input.pause();
-  var dirName = path.dirname(fileName);
-  mkdirp(dirName, function (err) {
-    if (err) die(err);
-    fs.writeFile(fileName, JSON.stringify(record), function (err) {
-      if (err) die(err);
-      // Resume input
-      input.resume();
-    });
-  });
+  // Create file in directory
+  try {
+    mkdirp.sync(path.dirname(fileName));
+    fs.writeFileSync(fileName, JSON.stringify(record));
+  }
+  catch (error) { die(error); }
 }
 
 /* Halt execution with an error message. */
